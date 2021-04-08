@@ -12,17 +12,13 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RequestScoped
 @Named
 public class InventoryBean {
 
-    @Size(min = 3, max = 10)
+    @Size(min = 3, max = 50)
     private String name;
 
     @NotEmpty
@@ -39,13 +35,11 @@ public class InventoryBean {
 
     @Logged
     public void addInventory() {
-        Inventory inventory = buildInventory();
-        inventoryService.addInventory(inventory);
+        inventoryService.addInventory(buildInventory());
     }
 
     private Inventory buildInventory() {
-        return Inventory.builder().name(name).sport(sport).
-                quantity(quantity).price(price).build();
+        return Inventory.builder().name(name).sport(sport).quantity(quantity).price(price).build();
     }
 
     public List<Inventory> getInventories() {

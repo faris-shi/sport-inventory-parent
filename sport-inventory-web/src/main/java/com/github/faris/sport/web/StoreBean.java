@@ -24,7 +24,7 @@ public class StoreBean {
 
     private Long id;
 
-    @Size(min = 3, max = 10)
+    @Size(min = 3, max = 50)
     private String name;
 
     @NotEmpty
@@ -33,8 +33,6 @@ public class StoreBean {
     @Size(min = 1)
     private List<Long> addInventoryIds = new ArrayList<>();
 
-
-    @Size(min = 1)
     private List<Long> updateInventoryIds = new ArrayList<>();
 
     @EJB
@@ -50,14 +48,11 @@ public class StoreBean {
 
     @Logged
     public void updateStore() {
-        System.out.println("---------");
-        System.out.println(id);
-        System.out.println(updateInventoryIds);
         storeService.updateStore(id, updateInventoryIds);
     }
 
     private Store buildStore() {
-        return Store.builder().id(id).name(name).location(location).inventories(
+        return Store.builder().name(name).location(location).inventories(
                 addInventoryIds.stream().map(id -> inventoryService.getInventoryById(id)).collect(toList())
         ).build();
     }
@@ -73,18 +68,6 @@ public class StoreBean {
      */
     public List<Inventory> getUnSelectedInventories() {
         Set<Long> ids = getStores().stream().flatMap(store -> storeService.getStoreById(store.getId()).getInventories().stream())
-                .map(Inventory::getId).collect(Collectors.toSet());
-        return inventoryService.getAllInventories().stream().filter(in -> !ids.contains(in.getId())).collect(toList());
-    }
-
-    /**
-     * get all inventories which can be selected in the update form.
-     *
-     * @return return inventories which include the inventories of the current store and other unselected inventories.
-     */
-    public List<Inventory> getCanSelectedInventories() {
-        Set<Long> ids = getStores().stream().filter(store -> !store.getId().equals(id))
-                .flatMap(store -> storeService.getStoreById(store.getId()).getInventories().stream())
                 .map(Inventory::getId).collect(Collectors.toSet());
         return inventoryService.getAllInventories().stream().filter(in -> !ids.contains(in.getId())).collect(toList());
     }
