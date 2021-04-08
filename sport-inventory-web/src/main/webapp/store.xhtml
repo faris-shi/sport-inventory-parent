@@ -41,9 +41,9 @@
                     <p:message for="@previous"/>
 
                     <p:outputLabel for="inventoryIdsAdd" style="margin-right: 1em">Inventories: </p:outputLabel>
-                    <p:selectManyCheckbox id="inventoryIdsAdd"  value="#{storeBean.inventoryIds}" required="true">
-                        <f:selectItems value="#{inventoryBean.inventories}" var="inventory"
-                                       itemLabel="#{inventory.name} (#{inventory.quantity})"
+                    <p:selectManyCheckbox id="inventoryIdsAdd"  value="#{storeBean.addInventoryIds}">
+                        <f:selectItems value="#{storeBean.unSelectedInventories}" var="inventory"
+                                       itemLabel="#{inventory.name}"
                                        itemValue="#{inventory.id}"/>
                     </p:selectManyCheckbox>
                     <p:message for="@previous"/>
@@ -62,15 +62,16 @@
                 <h:panelGrid columns="3" cellpadding="5" styleClass="p-mb-3">
                     <p:outputLabel for="idUpdate" style="margin-right: 1em">Store Name: </p:outputLabel>
                     <p:selectOneMenu id="idUpdate" value="#{storeBean.id}">
-                        <p:ajax listener="#{storeBean.onInventoryChange}" update="inventoryIdsUpdate"/>
+                        <p:ajax listener="#{storeBean.onInventoryChange}" update="inventoryIds"/>
+                        <f:selectItem itemValue="" itemLabel="--Please Select--"/>
                         <f:selectItems value="#{storeBean.stores}" var="store" itemLabel="#{store.name}" itemValue="#{store.id}"/>
                     </p:selectOneMenu>
                     <p:message for="@previous"/>
 
-                    <p:outputLabel for="inventoryIdsUpdate" style="margin-right: 1em">Inventories: </p:outputLabel>
-                    <p:selectManyCheckbox id="inventoryIdsUpdate" value="#{storeBean.inventoryIds}"  required="true">
+                    <p:outputLabel for="inventoryIds" style="margin-right: 1em">Inventories: </p:outputLabel>
+                    <p:selectManyCheckbox id="inventoryIds"  value="#{storeBean.updateInventoryIds}">
                         <f:selectItems value="#{inventoryBean.inventories}" var="inventory"
-                                       itemLabel="#{inventory.name} (#{inventory.quantity})"
+                                       itemLabel="#{inventory.name}"
                                        itemValue="#{inventory.id}"/>
                     </p:selectManyCheckbox>
                     <p:message for="@previous"/>

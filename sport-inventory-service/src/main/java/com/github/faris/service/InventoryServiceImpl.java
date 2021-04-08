@@ -5,31 +5,29 @@ import com.github.faris.service.model.Inventory;
 
 import javax.ejb.Remote;
 import javax.ejb.Singleton;
-import java.util.ArrayList;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Singleton
 @Remote(InventoryService.class)
 public class InventoryServiceImpl implements InventoryService {
 
-    private static final List<Inventory> INVENTORIES = new ArrayList<>();
-
-    private static final AtomicLong COUNTER = new AtomicLong(1);
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     public List<Inventory> getAllInventories() {
-        return INVENTORIES;
+        return em.createNamedQuery("Inventory.findAll", Inventory.class).getResultList();
     }
 
     @Override
     public Inventory getInventoryById(Long id) {
-        return INVENTORIES.stream().filter(inventory -> inventory.getId().equals(id)).findFirst().get();
+        return em.find(Inventory.class, id);
     }
 
     @Override
     public void addInventory(Inventory inventory) {
-        inventory.setId(COUNTER.incrementAndGet());
-        INVENTORIES.add(inventory);
+        em.persist(inventory);
     }
 }

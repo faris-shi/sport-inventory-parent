@@ -13,6 +13,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -29,7 +31,11 @@ public class StoreBean {
     private String location;
 
     @Size(min = 1)
-    private List<Long> inventoryIds = new ArrayList<>();
+    private List<Long> addInventoryIds = new ArrayList<>();
+
+
+    @Size(min = 1)
+    private List<Long> updateInventoryIds = new ArrayList<>();
 
     @EJB
     private StoreService storeService;
@@ -44,12 +50,15 @@ public class StoreBean {
 
     @Logged
     public void updateStore() {
-        storeService.updateStore(id, inventoryIds.stream().map(id -> inventoryService.getInventoryById(id)).collect(toList()));
+        System.out.println("---------");
+        System.out.println(id);
+        System.out.println(updateInventoryIds);
+        storeService.updateStore(id, updateInventoryIds);
     }
 
     private Store buildStore() {
         return Store.builder().id(id).name(name).location(location).inventories(
-                inventoryIds.stream().map(id -> inventoryService.getInventoryById(id)).collect(toList())
+                addInventoryIds.stream().map(id -> inventoryService.getInventoryById(id)).collect(toList())
         ).build();
     }
 
@@ -57,8 +66,35 @@ public class StoreBean {
         return storeService.getAllStores();
     }
 
+    /**
+     * get all inventories which can be selected in the add form
+     *
+     * @return return the unselected inventories.
+     */
+    public List<Inventory> getUnSelectedInventories() {
+        Set<Long> ids = getStores().stream().flatMap(store -> storeService.getStoreById(store.getId()).getInventories().stream())
+                .map(Inventory::getId).collect(Collectors.toSet());
+        return inventoryService.getAllInventories().stream().filter(in -> !ids.contains(in.getId())).collect(toList());
+    }
+
+    /**
+     * get all inventories which can be selected in the update form.
+     *
+     * @return return inventories which include the inventories of the current store and other unselected inventories.
+     */
+    public List<Inventory> getCanSelectedInventories() {
+        Set<Long> ids = getStores().stream().filter(store -> !store.getId().equals(id))
+                .flatMap(store -> storeService.getStoreById(store.getId()).getInventories().stream())
+                .map(Inventory::getId).collect(Collectors.toSet());
+        return inventoryService.getAllInventories().stream().filter(in -> !ids.contains(in.getId())).collect(toList());
+    }
+
     public void onInventoryChange() {
-        inventoryIds = storeService.getStoreById(id).getInventories().stream().map(Inventory::getId).collect(toList());
+        if (id == null) {
+            updateInventoryIds.clear();
+            return;
+        }
+        updateInventoryIds = storeService.getStoreById(id).getInventories().stream().map(Inventory::getId).collect(toList());
     }
 
     public Long getId() {
@@ -85,11 +121,19 @@ public class StoreBean {
         this.location = location;
     }
 
-    public List<Long> getInventoryIds() {
-        return inventoryIds;
+    public List<Long> getAddInventoryIds() {
+        return addInventoryIds;
     }
 
-    public void setInventoryIds(List<Long> inventoryIds) {
-        this.inventoryIds = inventoryIds;
+    public List<Long> getUpdateInventoryIds() {
+        return updateInventoryIds;
+    }
+
+    public void setAddInventoryIds(List<Long> addInventoryIds) {
+        this.addInventoryIds = addInventoryIds;
+    }
+
+    public void setUpdateInventoryIds(List<Long> updateInventoryIds) {
+        this.updateInventoryIds = updateInventoryIds;
     }
 }

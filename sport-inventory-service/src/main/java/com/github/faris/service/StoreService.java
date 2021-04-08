@@ -14,5 +14,5 @@ public interface StoreService {
 
     void addStore(Store store);
 
-    void updateStore(Long id, List<Inventory> inventories);
+    void updateStore(Long id, List<Long> inventoryIds);
 }

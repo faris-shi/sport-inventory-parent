@@ -22,8 +22,6 @@ import java.util.Map;
 @Named
 public class InventoryBean {
 
-    private Long id;
-
     @Size(min = 3, max = 10)
     private String name;
 
@@ -41,24 +39,17 @@ public class InventoryBean {
 
     @Logged
     public void addInventory() {
-        inventoryService.addInventory(buildInventory());
+        Inventory inventory = buildInventory();
+        inventoryService.addInventory(inventory);
     }
 
     private Inventory buildInventory() {
-        return Inventory.builder().id(id).name(name).sport(sport).
-                quantity(quantity).price(price).dateUpdated(new Date()).build();
+        return Inventory.builder().name(name).sport(sport).
+                quantity(quantity).price(price).build();
     }
 
     public List<Inventory> getInventories() {
         return inventoryService.getAllInventories();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {

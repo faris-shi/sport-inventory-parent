@@ -1,43 +1,44 @@
 package com.github.faris.service;
 
-
 import com.github.faris.service.model.Inventory;
 import com.github.faris.service.model.Store;
 
 import javax.ejb.Remote;
-import javax.ejb.Singleton;
-import java.util.ArrayList;
-import java.util.HashMap;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
-@Singleton
+import static java.util.stream.Collectors.toList;
+
+@Stateless
 @Remote(StoreService.class)
 public class StoreServiceImpl implements StoreService {
 
-    private static final Map<Long, Store> STORES = new HashMap<>();
-
-    private static final AtomicLong COUNTER = new AtomicLong(1);
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     public List<Store> getAllStores() {
-        return new ArrayList<>(STORES.values());
+        return em.createNamedQuery("Store.findAll", Store.class).getResultList();
     }
 
     @Override
     public Store getStoreById(Long id) {
-        return STORES.get(id);
+        return em.find(Store.class, id);
     }
 
     @Override
     public void addStore(Store store) {
-        store.setId(COUNTER.incrementAndGet());
-        STORES.put(store.getId(), store);
+        em.persist(store);
     }
 
     @Override
-    public void updateStore(Long id, List<Inventory> inventories) {
-        STORES.get(id).setInventories(inventories);
+    public void updateStore(Long id, List<Long> inventoryIds) {
+        Store store = em.find(Store.class, id);
+        store.setInventories(
+                inventoryIds.stream().map(i -> em.find(Inventory.class, i)).collect(toList())
+        );
+        em.merge(store);
     }
 }
